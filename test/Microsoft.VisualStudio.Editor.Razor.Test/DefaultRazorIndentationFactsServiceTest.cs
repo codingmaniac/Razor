@@ -168,6 +168,35 @@ namespace Microsoft.VisualStudio.Editor.Razor
         }
 
         [Fact]
+        public void GetDesiredIndentation_ReturnsNull_IfOwningSpanDoesNotExist()
+        {
+            // Arrange
+            var tagHelper = TagHelperDescriptorBuilder.Create("TestTagHelper", "TestAssembly");
+            tagHelper.TagMatchingRule(builder => builder.RequireTagName("testtaghelper"));
+            tagHelper.SetTypeName("TestTagHelper");
+
+            var source = new StringTextSnapshot($@"
+<div>
+    <div>
+    </div>
+</div>
+");
+            var syntaxTree = GetSyntaxTree(new StringTextSnapshot("something else"));
+            var service = new DefaultRazorIndentationFactsService();
+
+            // Act
+            var indentation = service.GetDesiredIndentation(
+                syntaxTree,
+                source,
+                source.GetLineFromLineNumber(3),
+                indentSize: 4,
+                tabSize: 1);
+
+            // Assert
+            Assert.Null(indentation);
+        }
+
+        [Fact]
         public void GetDesiredIndentation_ReturnsNull_IfOwningSpanIsCode()
         {
             // Arrange
