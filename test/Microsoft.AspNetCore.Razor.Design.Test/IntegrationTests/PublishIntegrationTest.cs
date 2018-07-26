@@ -401,5 +401,19 @@ namespace Microsoft.AspNetCore.Razor.Design.IntegrationTests
             Assert.FileExists(result, PublishOutputPath, "ClassLibrary2.Views.dll");
             Assert.FileExists(result, PublishOutputPath, "ClassLibrary2.Views.pdb");
         }
+
+        [Fact]
+        [InitializeTestProject("SimpleMvc")]
+        public async Task Publish_WithNoBuild_FailsWithoutBuild()
+        {
+            // Publish without building shouldn't succeed.
+            var result = await DotnetMSBuild("Publish", "/p:NoBuild=true");
+
+            Assert.BuildFailed(result);
+            Assert.BuildError(result, "MSB3030"); // Could not copy the file "obj/Debug/netcoreapp2.2/SimpleMvc.dll because it couldn't be found.
+
+            Assert.FileDoesNotExist(result, PublishOutputPath, "SimpleMvc.dll");
+            Assert.FileDoesNotExist(result, PublishOutputPath, "SimpleMvc.Views.dll");
+        }
     }
 }
